@@ -26,6 +26,16 @@ class ParkingLot {
     this.parkedCars.set(ticketNumber, car);
     return ticket;
   }
+  unpark(ticketNumber) {
+    const car = this.parkedCars.get(ticketNumber);
+
+    if (!car) {
+      return "Ticket not found";
+    }
+
+    this.parkedCars.delete(ticketNumber);
+    return car;
+  }
 }
 
 module.exports = ParkingLot;
