@@ -3,9 +3,24 @@ class ParkingAttendant {
     if (!Array.isArray(parkingLot) || parkingLot.length === 0) {
       throw new Error("At least one parking lot is required");
     }
+
     this.parkingLot = parkingLot;
+    this.availableLots = [...parkingLot];
     this.carTicketMap = new Map();
     this.ticketLotMap = new Map();
+
+    for (const lot of this.parkingLot) {
+      lot.subscribe(this.notifyLotFull.bind(this));
+    }
+  }
+
+  notifyLotFull(lot, isFull) {
+    const index = this.availableLots.indexOf(lot);
+    if (isFull && index !== -1) {
+      this.availableLots.splice(index, 1);
+    } else if (!isFull && index === -1) {
+      this.availableLots.push(lot);
+    }
   }
 
   park(car) {
@@ -13,9 +28,9 @@ class ParkingAttendant {
       return "Car is already parked";
     }
 
-    for (const lot of this.parkingLot) {
-      if (!lot.isLotFull()) {
-        const ticket = lot.park(car);
+    for (const lot of this.availableLots) {
+      const ticket = lot.park(car);
+      if (ticket !== "Full Capacity") {
         this.carTicketMap.set(car.plate, ticket.ticketNumber);
         this.ticketLotMap.set(ticket.ticketNumber, lot);
         return ticket;
